@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <time.h>
 
 using namespace std;
 typedef long long ll;
@@ -75,6 +76,9 @@ int main()
 {
     freopen("./Prim/input.txt", "r", stdin);
     LoadGraph();
+    clock_t start = clock();
     Prim();
+    clock_t end = clock();
     Result();
+    cout << "Time: " << end - start << " ms" << endl;
 }
