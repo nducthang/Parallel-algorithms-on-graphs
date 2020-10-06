@@ -135,6 +135,6 @@ int main(int argc, const char **argv)
     primparallel.PrimPar();
     double end = omp_get_wtime();
     primparallel.Result();
-    cout << "Time Prim sequence: " << end - start << " s" << endl;
+    cout << "Time Prim Parallel: " << end - start << " s" << endl;
     return 0;
 }
