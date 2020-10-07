@@ -4,7 +4,7 @@ using namespace std;
 typedef long long ll;
 const ll MAXC = INT32_MAX;
 
-class DijkstraSeq
+class DijkstraParallel
 {
 private:
     ll n;
@@ -14,14 +14,14 @@ private:
     ll s, f;
 
 public:
-    DijkstraSeq(ll n, ll s, ll f);
-    ~DijkstraSeq();
+    DijkstraParallel(ll n, ll s, ll f);
+    ~DijkstraParallel();
     void DijkstraPar();
     void Result();
     void Add(ll u, ll v, ll w);
 };
 
-DijkstraSeq::DijkstraSeq(ll n, ll s, ll f)
+DijkstraParallel::DijkstraParallel(ll n, ll s, ll f)
 {
     this->n = n;
     this->s = s;
@@ -46,7 +46,7 @@ DijkstraSeq::DijkstraSeq(ll n, ll s, ll f)
     }
 }
 
-DijkstraSeq::~DijkstraSeq()
+DijkstraParallel::~DijkstraParallel()
 {
     delete[] this->d;
     delete[] this->dd;
@@ -55,7 +55,7 @@ DijkstraSeq::~DijkstraSeq()
     delete[] this->c;
 }
 
-void DijkstraSeq::DijkstraPar()
+void DijkstraParallel::DijkstraPar()
 {
     this->d[this->s] = 0;
     while (true)
@@ -98,19 +98,19 @@ void DijkstraSeq::DijkstraPar()
         }
     }
 }
-void DijkstraSeq::Result()
+void DijkstraParallel::Result()
 {
     if (this->d[this->f] == MAXC)
         cout << "There is no path from " << this->s << " to " << this->f << endl;
     else
         cout << "Distance from " << this->s << " to " << this->f << " is: " << this->d[this->f] << endl;
 }
-void DijkstraSeq::Add(ll u, ll v, ll w)
+void DijkstraParallel::Add(ll u, ll v, ll w)
 {
     this->c[u][v] = w;
 }
 
-void LoadGraph(DijkstraSeq &g)
+void LoadGraph(DijkstraParallel &g)
 {
     ll u, v, w;
     while (cin >> u >> v >> w)
@@ -121,7 +121,7 @@ int main(int argc, char const *argv[])
     freopen("./graph_30000_nodes_0.txt", "r", stdin);
     ll n, s, f;
     cin >> n >> s >> f;
-    DijkstraSeq g(n, s, f);
+    DijkstraParallel g(n, s, f);
     LoadGraph(g);
     cout << "Load graph succesfully!" << endl;
     double start = omp_get_wtime();
