@@ -1,44 +1,46 @@
 #include <iostream>
 #include <omp.h>
 using namespace std;
-const int MAXC = INT32_MAX;
+typedef long long ll;
+const ll MAXC = INT32_MAX;
 class PrimParallel
 {
 private:
-    int n;
-    int **c;
-    int *d;
+    ll n;
+    ll **c;
+    ll *d;
     bool *dd;
     bool connected;
-    int minWeight;
+    ll minWeight;
 
 public:
-    PrimParallel(int n);
+    PrimParallel(ll n);
     ~PrimParallel();
     void PrimPar();
     void Result();
-    void Add(int u, int v, int w);
+    void Add(ll u, ll v, ll w);
 };
 
-PrimParallel::PrimParallel(int n)
+PrimParallel::PrimParallel(ll n)
 {
     this->n = n;
-    this->c = new int *[this->n];
-    for (int i = 0; i < this->n; i++)
-        this->c[i] = new int[this->n];
-    this->d = new int[this->n];
+    this->c = new ll *[this->n];
+    for (ll i = 0; i < this->n; i++)
+        this->c[i] = new ll[this->n];
+    this->d = new ll[this->n];
     this->dd = new bool[this->n];
-    for (int i = 0; i < this->n; i++)
+    for (ll i = 0; i < this->n; i++)
     {
-        for (int j = 0; j < this->n; j++)
+        for (ll j = 0; j < this->n; j++)
         {
             this->c[i][j] = MAXC;
         }
     }
-    for (int i = 0; i < this->n; i++)
+    for (ll i = 0; i < this->n; i++)
     {
         this->d[i] = MAXC;
         this->dd[i] = true;
+        this->c[i][i] = 0;
     }
     this->minWeight = 0;
     this->connected = true;
@@ -48,7 +50,7 @@ PrimParallel::~PrimParallel()
 {
     delete[] this->d;
     delete[] this->dd;
-    for (int i = 0; i < this->n; i++)
+    for (ll i = 0; i < this->n; i++)
         delete[] this->c[i];
     delete[] this->c;
 }
@@ -57,13 +59,13 @@ void PrimParallel::PrimPar()
 {
     omp_set_num_threads(8);
     this->d[0] = 0;
-    for (int iter = 0; iter < this->n; iter++)
+    for (ll iter = 0; iter < this->n; iter++)
     {
-        int distanceMin = MAXC, u = -1, i;
+        ll distanceMin = MAXC, u = -1, i;
 #pragma omp parallel
         {
-            int uLocal = -1;
-            int minLocal = distanceMin;
+            ll uLocal = -1;
+            ll minLocal = distanceMin;
 #pragma omp for nowait
             for (i = 0; i < this->n; i++)
             {
@@ -91,7 +93,7 @@ void PrimParallel::PrimPar()
         // Nêú chọn được thì đánh dâú lại và tính toá khoảng cách
         this->dd[u] = false;
         this->minWeight += this->d[u];
-        int v;
+        ll v;
 #pragma omp parallel for schedule(static)
         for (v = 0; v < this->n; v++)
         {
@@ -110,14 +112,14 @@ void PrimParallel::Result()
         cout << "Do thi khong lien thong" << endl;
 }
 
-void PrimParallel::Add(int u, int v, int w)
+void PrimParallel::Add(ll u, ll v, ll w)
 {
     this->c[u][v] = w;
     this->c[v][u] = w;
 }
 void LoadGraph(PrimParallel &g)
 {
-    int u, v, w;
+    ll u, v, w;
     while (cin >> u >> v >> w)
     {
         g.Add(u, v, w);
@@ -125,8 +127,9 @@ void LoadGraph(PrimParallel &g)
 }
 int main(int argc, const char **argv)
 {
-    freopen("./graph_20000_nodes_0.txt", "r", stdin);
-    int n;
+    // freopen("./graph_20000_nodes_0.txt", "r", stdin);
+    freopen("./graph_10000.txt", "r", stdin);
+    ll n;
     cin >> n;
     PrimParallel primparallel(n);
     LoadGraph(primparallel);

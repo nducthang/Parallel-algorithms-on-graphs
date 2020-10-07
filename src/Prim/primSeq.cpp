@@ -1,44 +1,46 @@
 #include <iostream>
 #include <time.h>
 using namespace std;
-const int MAXC = INT32_MAX;
+typedef long long ll;
+const ll MAXC = INT32_MAX;
 class PrimSeq
 {
 private:
-    int n;
-    int **c;
-    int *d;
+    ll n;
+    ll **c;
+    ll *d;
     bool *dd;
     bool connected;
-    int minWeight;
+    ll minWeight;
 
 public:
-    PrimSeq(int n);
+    PrimSeq(ll n);
     ~PrimSeq();
     void Prim();
     void Result();
-    void Add(int u, int v, int w);
+    void Add(ll u, ll v, ll w);
 };
 
-PrimSeq::PrimSeq(int n)
+PrimSeq::PrimSeq(ll n)
 {
     this->n = n;
-    this->c = new int *[this->n];
-    for (int i = 0; i < this->n; i++)
-        this->c[i] = new int[this->n];
-    this->d = new int[this->n];
+    this->c = new ll *[this->n];
+    for (ll i = 0; i < this->n; i++)
+        this->c[i] = new ll[this->n];
+    this->d = new ll[this->n];
     this->dd = new bool[this->n];
-    for (int i = 0; i < this->n; i++)
+    for (ll i = 0; i < this->n; i++)
     {
-        for (int j = 0; j < this->n; j++)
+        for (ll j = 0; j < this->n; j++)
         {
             this->c[i][j] = MAXC;
         }
     }
-    for (int i = 0; i < this->n; i++)
+    for (ll i = 0; i < this->n; i++)
     {
         this->d[i] = MAXC;
         this->dd[i] = true;
+        this->c[i][i] = 0;
     }
     this->minWeight = 0;
     this->connected = true;
@@ -48,7 +50,7 @@ PrimSeq::~PrimSeq()
 {
     delete[] this->d;
     delete[] this->dd;
-    for (int i = 0; i < this->n; i++)
+    for (ll i = 0; i < this->n; i++)
         delete[] this->c[i];
     delete[] this->c;
 }
@@ -57,11 +59,11 @@ void PrimSeq::Prim()
 {
     // Ban đầu coi như cây T chỉ chưá đỉnh 0
     this->d[0] = 0;
-    for (int iter = 1; iter <= this->n; iter++)
+    for (ll iter = 1; iter <= this->n; iter++)
     {
         // Tìm đỉnh gần cây T nhất trong số các đỉnh ngoài cây
-        int u = -1, distanceMin = MAXC;
-        for (int i = 0; i < this->n; i++)
+        ll u = -1, distanceMin = MAXC;
+        for (ll i = 0; i < this->n; i++)
         {
             if (this->dd[i] && this->d[i] < distanceMin)
             {
@@ -78,7 +80,7 @@ void PrimSeq::Prim()
         // Nêú chọn được thì đánh dấu lại và tính toán lại khoảng cách
         this->dd[u] = false;
         minWeight += this->d[u];
-        for (int v = 0; v < n; v++)
+        for (ll v = 0; v < n; v++)
         {
             if (this->dd[v] && this->d[v] > this->c[u][v])
                 this->d[v] = this->c[u][v];
@@ -95,14 +97,14 @@ void PrimSeq::Result()
         cout << "Do thi khong lien thong" << endl;
 }
 
-void PrimSeq::Add(int u, int v, int w)
+void PrimSeq::Add(ll u, ll v, ll w)
 {
     this->c[u][v] = w;
     this->c[v][u] = w;
 }
 void LoadGraph(PrimSeq &g)
 {
-    int u, v, w;
+    ll u, v, w;
     while (cin >> u >> v >> w)
     {
         g.Add(u, v, w);
@@ -110,8 +112,9 @@ void LoadGraph(PrimSeq &g)
 }
 int main(int argc, const char **argv)
 {
-    freopen("./graph_20000_nodes_0.txt", "r", stdin);
-    int n;
+    // freopen("./graph_20000_nodes_0.txt", "r", stdin);
+    freopen("./graph_10000.txt", "r", stdin);
+    ll n;
     cin >> n;
     PrimSeq primseq(n);
     LoadGraph(primseq);
