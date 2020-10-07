@@ -34,7 +34,7 @@ def generate_graph(n, d, p):
 
 if __name__ == "__main__":
     n_graphs = 1
-    n_nodes = 2000
+    n_nodes = 500
     n_degree = 4
     p_edges = 0.3
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         f = open(file_name, "w")
 
         for edge in edges:
-            edge_description = str(edge[0]) + " " + str(edge[1]) + "\n"
+            edge_description = str(edge[0]) + " " + str(edge[1]) + " " + str(random.randint(0, 10)) + "\n"
             f.write(edge_description)
 
         f.close()
