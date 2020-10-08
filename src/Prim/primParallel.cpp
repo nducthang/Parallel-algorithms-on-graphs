@@ -1,5 +1,7 @@
 #include <iostream>
 #include <omp.h>
+#include <fstream>
+#include <string>
 using namespace std;
 typedef long long ll;
 const ll MAXC = INT32_MAX;
@@ -117,27 +119,37 @@ void PrimParallel::Add(ll u, ll v, ll w)
     this->c[u][v] = w;
     this->c[v][u] = w;
 }
-void LoadGraph(PrimParallel &g)
+void LoadGraph(PrimParallel &g, fstream &fsi)
 {
     ll u, v, w;
-    while (cin >> u >> v >> w)
+    while (fsi >> u >> v >> w)
     {
         g.Add(u, v, w);
     }
 }
 int main(int argc, const char **argv)
 {
-    // freopen("./graph_20000_nodes_0.txt", "r", stdin);
-    freopen("./graph_10000.txt", "r", stdin);
-    ll n;
-    cin >> n;
-    PrimParallel primparallel(n);
-    LoadGraph(primparallel);
-    cout << "Load graph succesfully!" << endl;
-    double start = omp_get_wtime();
-    primparallel.PrimPar();
-    double end = omp_get_wtime();
-    primparallel.Result();
-    cout << "Time Prim Parallel: " << end - start << " s" << endl;
+    fstream wf;
+    wf.open("./src/Prim/resultParallel.txt", ios::out);
+    for (int i = 500; i <= 30000; i += 500)
+    {
+        fstream fsi;
+        string file = "./src/Prim/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n;
+        fsi >> n;
+        PrimParallel primparallel(n);
+        LoadGraph(primparallel, fsi);
+        cout << "Load file: " << file << endl;
+        double start = omp_get_wtime();
+        primparallel.PrimPar();
+        double end = omp_get_wtime();
+        primparallel.Result();
+        double timeSpent = end - start;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
     return 0;
 }

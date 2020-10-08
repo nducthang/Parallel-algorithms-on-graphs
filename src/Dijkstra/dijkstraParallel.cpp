@@ -1,5 +1,7 @@
 #include <iostream>
 #include <omp.h>
+#include <fstream>
+#include <string>
 using namespace std;
 typedef long long ll;
 const ll MAXC = INT32_MAX;
@@ -11,21 +13,19 @@ private:
     ll **c;
     ll *d;
     bool *dd;
-    ll s, f;
+    ll s;
 
 public:
-    DijkstraParallel(ll n, ll s, ll f);
+    DijkstraParallel(ll n, ll s);
     ~DijkstraParallel();
     void DijkstraPar();
-    void Result();
     void Add(ll u, ll v, ll w);
 };
 
-DijkstraParallel::DijkstraParallel(ll n, ll s, ll f)
+DijkstraParallel::DijkstraParallel(ll n, ll s)
 {
     this->n = n;
     this->s = s;
-    this->f = f;
     this->c = new ll *[this->n];
     for (ll i = 0; i < this->n; i++)
         this->c[i] = new ll[this->n];
@@ -85,7 +85,7 @@ void DijkstraParallel::DijkstraPar()
             }
         }
         // Điều kiện dừng
-        if (u == this->f || u == -1)
+        if (u == -1)
             break;
         // Cố định nhãn u
         this->dd[u] = false;
@@ -98,36 +98,39 @@ void DijkstraParallel::DijkstraPar()
         }
     }
 }
-void DijkstraParallel::Result()
-{
-    if (this->d[this->f] == MAXC)
-        cout << "There is no path from " << this->s << " to " << this->f << endl;
-    else
-        cout << "Distance from " << this->s << " to " << this->f << " is: " << this->d[this->f] << endl;
-}
 void DijkstraParallel::Add(ll u, ll v, ll w)
 {
     this->c[u][v] = w;
 }
 
-void LoadGraph(DijkstraParallel &g)
+void LoadGraph(DijkstraParallel &g, fstream &fsi)
 {
     ll u, v, w;
-    while (cin >> u >> v >> w)
+    while (fsi >> u >> v >> w)
         g.Add(u, v, w);
 }
 int main(int argc, char const *argv[])
 {
-    freopen("./graph_30000_nodes_0.txt", "r", stdin);
-    ll n, s, f;
-    cin >> n >> s >> f;
-    DijkstraParallel g(n, s, f);
-    LoadGraph(g);
-    cout << "Load graph succesfully!" << endl;
-    double start = omp_get_wtime();
-    g.DijkstraPar();
-    double end = omp_get_wtime();
-    g.Result();
-    cout << "Time Dijkstra parallel: " << end - start << " s" << endl;
+    fstream wf;
+    wf.open("./src/Dijkstra/resultParallel.txt", ios::out);
+    for (int i = 1000; i <= 40000; i += 1000)
+    {
+        fstream fsi;
+        string file = "./src/Dijkstra/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n, s, f;
+        fsi >> n >> s;
+        DijkstraParallel g(n, s);
+        LoadGraph(g, fsi);
+        cout << "Load file: " << file << endl;
+        double start = omp_get_wtime();
+        g.DijkstraPar();
+        double end = omp_get_wtime();
+        double timeSpent = end - start;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
     return 0;
 }

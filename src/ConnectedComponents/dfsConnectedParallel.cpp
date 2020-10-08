@@ -1,6 +1,8 @@
 #include <iostream>
 #include <omp.h>
 #include <vector>
+#include <string>
+#include <fstream>
 
 using namespace std;
 typedef long long ll;
@@ -54,7 +56,7 @@ dfsConnectedPar::~dfsConnectedPar()
 void dfsConnectedPar::Add(ll u, ll v)
 {
     this->c[u][v] = 1;
-    this->c[v][u] = 1;
+    // this->c[v][u] = 1;
 }
 
 void dfsConnectedPar::pDFS(ll s)
@@ -65,7 +67,7 @@ void dfsConnectedPar::pDFS(ll s)
     {
         ll u = st.back();
         st.pop_back();
-        cout << u << " ";
+        // cout << u << " ";
         this->dd[u] = false;
 #pragma omp parallel shared(st)
         {
@@ -91,28 +93,45 @@ void dfsConnectedPar::ConnectedComponent()
         if (this->dd[i])
         {
             this->count++;
-            cout << "Thanh phan lien thong thu " << this->count << " gom cac dinh: ";
+            // cout << "Thanh phan lien thong thu " << this->count << " gom cac dinh: ";
             this->pDFS(i);
-            cout << endl;
+            // cout << endl;
         }
     }
 }
-void LoadGraph(dfsConnectedPar &g)
+void LoadGraph(dfsConnectedPar &g, fstream &fsi)
 {
     ll u, v;
-    while (cin >> u >> v)
+    while (fsi >> u >> v)
         g.Add(u, v);
+}
+void dfsConnectedPar::Result()
+{
+    cout << "Do thi co " << this->count << " thanh phan lien thong" << endl;
 }
 int main()
 {
-    freopen("./test3.txt", "r", stdin);
-    ll n;
-    cin >> n;
-    dfsConnectedPar g(n);
-    LoadGraph(g);
-    cout << "Load graph succesfully!" << endl;
-    double start = omp_get_wtime();
-    g.ConnectedComponent();
-    double end = omp_get_wtime();
-    cout << "Time parallel: " << end - start << " s" << endl;
+    fstream wf;
+    wf.open("./src/ConnectedComponents/resultParallel.txt", ios::out);
+    for (int i = 500; i <= 30000; i += 500)
+    {
+        fstream fsi;
+        string file = "./src/ConnectedComponents/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n;
+        fsi >> n;
+        dfsConnectedPar g(n);
+        LoadGraph(g, fsi);
+        cout << "Load file: " << file << endl;
+        double start = omp_get_wtime();
+        g.ConnectedComponent();
+        double end = omp_get_wtime();
+        g.Result();
+        double timeSpent = end - start;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
+    return 0;
 }

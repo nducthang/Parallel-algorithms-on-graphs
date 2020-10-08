@@ -1,6 +1,8 @@
 #include <iostream>
 #include <time.h>
 #include <vector>
+#include <string>
+#include <fstream>
 
 using namespace std;
 typedef long long ll;
@@ -54,7 +56,7 @@ dfsConnectedSeq::~dfsConnectedSeq()
 void dfsConnectedSeq::Add(ll u, ll v)
 {
     this->c[u][v] = 1;
-    this->c[v][u] = 1;
+    // this->c[v][u] = 1;
 }
 
 void dfsConnectedSeq::DFS(ll s)
@@ -65,7 +67,7 @@ void dfsConnectedSeq::DFS(ll s)
     {
         ll u = st.back();
         st.pop_back();
-        cout << u << " ";
+        // cout << u << " ";
         this->dd[u] = false;
         for (ll v = 0; v < this->n; v++)
         {
@@ -83,30 +85,46 @@ void dfsConnectedSeq::ConnectedComponent()
         if (this->dd[i])
         {
             this->count++;
-            cout << "Thanh phan lien thong thu " << this->count << " gom cac dinh: ";
+            // cout << "Thanh phan lien thong thu " << this->count << " gom cac dinh: ";
             this->DFS(i);
-            cout << endl;
+            // cout << endl;
         }
     }
 }
-void LoadGraph(dfsConnectedSeq &g)
+void LoadGraph(dfsConnectedSeq &g, fstream &fsi)
 {
     ll u, v;
-    while (cin >> u >> v)
+    while (fsi >> u >> v)
         g.Add(u, v);
+}
+
+void dfsConnectedSeq::Result()
+{
+    cout << "Do thi co " << this->count << " thanh phan lien thong" << endl;
 }
 int main()
 {
-    freopen("./test3.txt", "r", stdin);
-    ll n;
-    cin >> n;
-    dfsConnectedSeq g(n);
-    LoadGraph(g);
-    cout << "Load graph succesfully!" << endl;
-    clock_t start = clock();
-    g.ConnectedComponent();
-    clock_t end = clock();
-
-    double timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
-    cout << "Time sequence: " << timeSpent << " s" << endl;
+    fstream wf;
+    wf.open("./src/ConnectedComponents/resultSequential.txt", ios::out);
+    for (int i = 500; i <= 30000; i += 500)
+    {
+        fstream fsi;
+        string file = "./src/ConnectedComponents/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n;
+        fsi >> n;
+        dfsConnectedSeq g(n);
+        LoadGraph(g, fsi);
+        cout << "Load file: " << file << endl;
+        clock_t start = clock();
+        g.ConnectedComponent();
+        clock_t end = clock();
+        g.Result();
+        double timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
+    return 0;
 }

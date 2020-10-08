@@ -1,6 +1,8 @@
 #include <iostream>
 #include <algorithm>
 #include <omp.h>
+#include <fstream>
+#include <string>
 using namespace std;
 typedef long long ll;
 const ll MAXC = INT32_MAX;
@@ -14,7 +16,6 @@ public:
     FloydParallel(ll n);
     ~FloydParallel();
     void FloydPar();
-    void Result(ll s, ll f);
     void Add(ll u, ll v, ll w);
 };
 
@@ -59,35 +60,39 @@ void FloydParallel::FloydPar()
         }
     }
 }
-void FloydParallel::Result(ll s, ll f)
-{
-    if (this->c[s][f] == MAXC)
-        cout << "Path from " << s << " to " << f << " not found" << endl;
-    else
-        cout << "Distance from " << s << " to " << f << " is: " << this->c[s][f] << endl;
-}
+
 void FloydParallel::Add(ll u, ll v, ll w)
 {
     this->c[u][v] = w;
 }
-void LoadGraph(FloydParallel &g)
+void LoadGraph(FloydParallel &g, fstream &fsi)
 {
     ll u, v, w;
-    while (cin >> u >> v >> w)
+    while (fsi >> u >> v >> w)
         g.Add(u, v, w);
 }
 int main(int argc, const char **argv)
 {
-    freopen("./graph_5000_nodes_0.txt", "r", stdin);
-    ll n, s, f;
-    cin >> n >> s >> f;
-    FloydParallel g(n);
-    LoadGraph(g);
-    cout << "Load graph succesfully!" << endl;
-    double start = omp_get_wtime();
-    g.FloydPar();
-    double end = omp_get_wtime();
-    g.Result(s, f);
-    cout << "Time Floyd sequence: " << end - start << " s" << endl;
+    fstream wf;
+    wf.open("./src/Floyd/resultParallel.txt", ios::out);
+    for (int i = 200; i <= 3000; i += 200)
+    {
+        fstream fsi;
+        string file = "./src/Floyd/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n;
+        fsi >> n;
+        FloydParallel g(n);
+        LoadGraph(g, fsi);
+        cout << "Load file: " << file << endl;
+        double start = omp_get_wtime();
+        g.FloydPar();
+        double end = omp_get_wtime();
+        double timeSpent = end - start;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
     return 0;
 }
