@@ -35,17 +35,17 @@ def generate_graph(n, d, p):
 
 if __name__ == "__main__":
     n_graphs = 1
-    n_nodes = 500
+    n_nodes = 200
     n_degree = 4
     p_edges = 0.3
 
-    while n_nodes <= 40000:
+    while n_nodes <= 3000:
         for i in range(n_graphs):
             print("GENERATING GRAPH", i, "...")
             edges = generate_graph(n_nodes, n_degree, p_edges)
 
             print("\tCREATING FILE...")
-            file_name = "./src/Prim/data/graph_" + \
+            file_name = "./src/TransitiveClosure/data/graph_" + \
                 str(n_nodes) + "_nodes" + ".txt"
             f = open(file_name, "w")
 
@@ -54,10 +54,10 @@ if __name__ == "__main__":
             f.write(str(n_nodes) + "\n")
             for edge in edges:
                 edge_description = str(
-                    edge[0]) + " " + str(edge[1]) + " " + str(random.randint(0, n_nodes * 2)) + "\n"
+                    edge[0]) + " " + str(edge[1]) + "\n"
                 f.write(edge_description)
 
             f.close()
 
             print("\tCREATED FILE!")
-            n_nodes += 500
+            n_nodes += 200

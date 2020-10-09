@@ -1,6 +1,8 @@
 #include <iostream>
 #include <time.h>
 #include <algorithm>
+#include <string>
+#include <fstream>
 using namespace std;
 typedef long long ll;
 const ll MAXC = INT32_MAX;
@@ -14,7 +16,6 @@ public:
     TransitiveClosureSeq(ll n);
     ~TransitiveClosureSeq();
     void Floyd();
-    void Result(ll s, ll f);
     void Add(ll u, ll v);
 };
 
@@ -57,36 +58,39 @@ void TransitiveClosureSeq::Floyd()
         }
     }
 }
-void TransitiveClosureSeq::Result(ll s, ll f)
-{
-    if (this->c[s][f] == MAXC)
-        cout << "Path from " << s << " to " << f << " not found" << endl;
-    else
-        cout << "Path from " << s << " to " << f << " connected" << endl;
-}
+
 void TransitiveClosureSeq::Add(ll u, ll v)
 {
     this->c[u][v] = 1;
 }
-void LoadGraph(TransitiveClosureSeq &g)
+void LoadGraph(TransitiveClosureSeq &g, fstream &fsi)
 {
     ll u, v, w;
-    while (cin >> u >> v)
+    while (fsi >> u >> v)
         g.Add(u, v);
 }
 int main(int argc, const char **argv)
 {
-    freopen("./test2.txt", "r", stdin);
-    ll n, s, f;
-    cin >> n >> s >> f;
-    TransitiveClosureSeq g(n);
-    LoadGraph(g);
-    cout << "Load graph succesfully!" << endl;
-    clock_t start = clock();
-    g.Floyd();
-    clock_t end = clock();
-    g.Result(s, f);
-    double timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
-    cout << "Time Transitive Closure sequence: " << timeSpent << " s" << endl;
+    fstream wf;
+    wf.open("./src/TransitiveClosure/resultSequential.txt", ios::out);
+    for (int i = 200; i <= 3000; i += 200)
+    {
+        fstream fsi;
+        string file = "./src/TransitiveClosure/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n;
+        fsi >> n;
+        TransitiveClosureSeq g(n);
+        LoadGraph(g, fsi);
+        cout << "Load file: " << file << endl;
+        clock_t start = clock();
+        g.Floyd();
+        clock_t end = clock();
+        double timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
     return 0;
 }

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <omp.h>
 #include <algorithm>
+#include <fstream>
+#include <string>
 using namespace std;
 typedef long long ll;
 const ll MAXC = INT32_MAX;
@@ -14,7 +16,6 @@ public:
     TransitiveClosureParallel(ll n);
     ~TransitiveClosureParallel();
     void Floyd();
-    void Result(ll s, ll f);
     void Add(ll u, ll v);
 };
 
@@ -58,35 +59,39 @@ void TransitiveClosureParallel::Floyd()
         }
     }
 }
-void TransitiveClosureParallel::Result(ll s, ll f)
-{
-    if (this->c[s][f] == MAXC)
-        cout << "Path from " << s << " to " << f << " not found" << endl;
-    else
-        cout << "Path from " << s << " to " << f << " connected" << endl;
-}
+
 void TransitiveClosureParallel::Add(ll u, ll v)
 {
     this->c[u][v] = 1;
 }
-void LoadGraph(TransitiveClosureParallel &g)
+void LoadGraph(TransitiveClosureParallel &g, fstream &fsi)
 {
     ll u, v, w;
-    while (cin >> u >> v)
+    while (fsi >> u >> v)
         g.Add(u, v);
 }
 int main(int argc, const char **argv)
 {
-    freopen("./test2.txt", "r", stdin);
-    ll n, s, f;
-    cin >> n >> s >> f;
-    TransitiveClosureParallel g(n);
-    LoadGraph(g);
-    cout << "Load graph succesfully!" << endl;
-    double start = omp_get_wtime();
-    g.Floyd();
-    double end = omp_get_wtime();
-    g.Result(s, f);
-    cout << "Time Transitive Closure parallel: " << end - start << " s" << endl;
+    fstream wf;
+    wf.open("./src/TransitiveClosure/resultParallel.txt", ios::out);
+    for (int i = 200; i <= 3000; i += 200)
+    {
+        fstream fsi;
+        string file = "./src/TransitiveClosure/data/graph_" + to_string(i) + "_nodes.txt";
+        fsi.open(file, ios::in);
+        ll n;
+        fsi >> n;
+        TransitiveClosureParallel g(n);
+        LoadGraph(g, fsi);
+        cout << "Load file: " << file << endl;
+        double start = omp_get_wtime();
+        g.Floyd();
+        double end = omp_get_wtime();
+        double timeSpent = end - start;
+        cout << "Time run file: " << i << " is: " << timeSpent << " s" << endl;
+        fsi.close();
+        wf << to_string(i) + "," + to_string(timeSpent) + '\n';
+    }
+    wf.close();
     return 0;
 }
